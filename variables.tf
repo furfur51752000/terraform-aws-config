@@ -60,3 +60,15 @@ variable "password_max_age" {
   description = "Number of days before password expiration."
   default     = 90
 }
+
+variable "tag_key" {
+  description = "require tag Key."
+  default     = "Name"
+  type        = "string"
+}
+
+variable "tag_value" {
+  description = "require tag Value."
+  default     = "Project-Name_Server-Name"
+  type        = "string"
+}

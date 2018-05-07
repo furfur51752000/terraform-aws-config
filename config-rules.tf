@@ -10,6 +10,8 @@ data "template_file" "aws_config_iam_password_policy" {
     password_min_length        = "${var.password_min_length}"
     password_reuse_prevention  = "${var.password_reuse_prevention}"
     password_max_age           = "${var.password_max_age}"
+    tag_key                    = "${var.tag_key}"
+    tag_value                  = "${var.tag_value}"
   }
 }
 
@@ -128,5 +130,19 @@ resource "aws_config_config_rule" "iam-user-no-policies-check" {
     source_identifier = "IAM_USER_NO_POLICIES_CHECK"
   }
 
+  depends_on = ["aws_config_configuration_recorder.main"]
+}
+
+resource "aws_config_config_rule" "require-tags" {
+  name        = "require-tags"
+  description = "Checks whether your resources have the tags that you specify. For example, you can check whether your EC2 instances have the 'CostCenter' tag. Separate multiple values with commas."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "REQUIRED_TAGS"
+  }
+
+  tag_key    = "${var.tag_key}"
+  tag_value  = "${var.tag_value}"
   depends_on = ["aws_config_configuration_recorder.main"]
 }
