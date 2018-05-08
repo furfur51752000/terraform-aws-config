@@ -1,3 +1,19 @@
+// variable for main.profile.tf
+variable "profile" {
+  description = "aws login profile"
+  default     = ""
+}
+
+variable "assume_role" {
+  description = "aws login assueme role"
+  default     = ""
+}
+
+variable "region" {
+  description = "aws region"
+  default     = ""
+}
+
 variable "config_logs_bucket" {
   description = "The S3 bucket for AWS Config logs."
   type        = "string"
@@ -9,6 +25,7 @@ variable "config_logs_prefix" {
   type        = "string"
 }
 
+// variable for AWS Config rule 
 variable "config_max_execution_frequency" {
   description = "The maximum frequency with which AWS Config runs evaluations for a rule."
   default     = "TwentyFour_Hours"
@@ -59,4 +76,9 @@ variable "password_reuse_prevention" {
 variable "password_max_age" {
   description = "Number of days before password expiration."
   default     = 90
+}
+
+variable "tags" {
+  description = "tags"
+  default     = {}
 }

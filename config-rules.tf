@@ -134,7 +134,7 @@ resource "aws_config_config_rule" "iam-user-no-policies-check" {
 resource "aws_config_config_rule" "require-tags" {
   name             = "require-tags"
   description      = "Checks whether your resources have the tags that you specify. For example, you can check whether your EC2 instances have the 'CostCenter' tag. Separate multiple values with commas."
-  input_parameters = "{\"tag1Key\": \"Project-Name\",\"tag2Key\": \"Server-Name\",\"tag3Key\": \"Owner\"}"
+  input_parameters = "{\"tag1Key\": \"Project\",\"tag2Key\": \"Server-Name\",\"tag3Key\": \"Owner\"}"
 
   source {
     owner             = "AWS"
