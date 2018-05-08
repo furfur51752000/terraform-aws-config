@@ -1,8 +1,9 @@
 provider "aws" {
-  profile = "default"
-  region = "ap-northeast-1"
+  region  = "${var.region}"
+  profile = "${var.profile}"
+
   assume_role {
-    role_arn = "arn:aws:iam::214310575279:role/Role-Administrator"
+    role_arn     = "${var.assume_role}"
     session_name = "terraform"
   }
 }
