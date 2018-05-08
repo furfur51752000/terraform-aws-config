@@ -22,42 +22,46 @@ data "template_file" "aws_config_acm_certificate_expiration" {
 }
 
 /**
- * AWS Config Rules
+ * AWS Config Rules (classfied each rule by category)
+ * Reference link 1: https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html
+ * Reference link 2 (custom rules): https://github.com/awslabs/aws-config-rules
  */
 
-resource "aws_config_config_rule" "iam-password-policy" {
-  name             = "iam-password-policy"
-  description      = "Ensure the account password policy for IAM users meets the specified requirements"
-  input_parameters = "${data.template_file.aws_config_iam_password_policy.rendered}"
+// Compute
+resource "aws_config_config_rule" "restricted-ssh" {
+  name        = "restricted-ssh"
+  description = "Checks whether security groups in use do not allow restricted incoming SSH traffic."
 
   source {
     owner             = "AWS"
-    source_identifier = "IAM_PASSWORD_POLICY"
+    source_identifier = "INCOMING_SSH_DISABLED"
   }
 
-  maximum_execution_frequency = "${var.config_max_execution_frequency}"
-
-  depends_on = [
-    "aws_config_configuration_recorder.main",
-    "aws_config_delivery_channel.main",
-  ]
+  depends_on = ["aws_config_configuration_recorder.main"]
 }
 
-resource "aws_config_config_rule" "cloudtrail-enabled" {
-  name        = "cloudtrail-enabled"
-  description = "Ensure CloudTrail is enabled"
+resource "aws_config_config_rule" "restricted-common-ports" {
+  name        = "restricted-common-ports"
+  description = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
 
   source {
     owner             = "AWS"
-    source_identifier = "CLOUD_TRAIL_ENABLED"
+    source_identifier = "RESTRICTED_INCOMING_TRAFFIC"
   }
 
-  maximum_execution_frequency = "${var.config_max_execution_frequency}"
+  depends_on = ["aws_config_configuration_recorder.main"]
+}
 
-  depends_on = [
-    "aws_config_configuration_recorder.main",
-    "aws_config_delivery_channel.main",
-  ]
+resource "aws_config_config_rule" "ec2-volume-inuse-check" {
+  name        = "ec2-volume-inuse-check"
+  description = "Checks whether EBS volumes are attached to EC2 instances"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "EC2_VOLUME_INUSE_CHECK"
+  }
+
+  depends_on = ["aws_config_configuration_recorder.main"]
 }
 
 resource "aws_config_config_rule" "instances-in-vpc" {
@@ -75,13 +79,72 @@ resource "aws_config_config_rule" "instances-in-vpc" {
   ]
 }
 
-resource "aws_config_config_rule" "root-account-mfa-enabled" {
-  name        = "root-account-mfa-enabled"
-  description = "Ensure root AWS account has MFA enabled"
+resource "aws_config_config_rule" "eip-attached" {
+  name        = "eip-attached"
+  description = "Checks whether all Elastic IP addresses that are allocated to a VPC are attached to EC2 instances or in-use elastic network interfaces (ENIs)."
 
   source {
     owner             = "AWS"
-    source_identifier = "ROOT_ACCOUNT_MFA_ENABLED"
+    source_identifier = "EIP_ATTACHED"
+  }
+
+  depends_on = [
+    "aws_config_configuration_recorder.main"
+  ]
+}
+
+// Manage Tools
+resource "aws_config_config_rule" "cloudtrail-enabled" {
+  name        = "cloudtrail-enabled"
+  description = "Ensure CloudTrail is enabled"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "CLOUD_TRAIL_ENABLED"
+  }
+
+  maximum_execution_frequency = "${var.config_max_execution_frequency}"
+
+  depends_on = [
+    "aws_config_configuration_recorder.main",
+    "aws_config_delivery_channel.main",
+  ]
+}
+
+resource "aws_config_config_rule" "require-tags" {
+  name             = "require-tags"
+  description      = "Checks whether your resources have the tags that you specify. For example, you can check whether your EC2 instances have the 'CostCenter' tag. Separate multiple values with commas."
+  input_parameters = "{\"tag1Key\": \"Project\",\"tag2Key\": \"Server-Name\",\"tag3Key\": \"Owner\"}"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "REQUIRED_TAGS"
+  }
+
+  depends_on = ["aws_config_configuration_recorder.main"]
+}
+
+// Security, Identity & Compliance
+resource "aws_config_config_rule" "iam-user-no-policies-check" {
+  name        = "iam-user-no-policies-check"
+  description = "Ensure that none of your IAM users have policies attached. IAM users must inherit permissions from IAM groups or roles."
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_USER_NO_POLICIES_CHECK"
+  }
+
+  depends_on = ["aws_config_configuration_recorder.main"]
+}
+
+resource "aws_config_config_rule" "iam-password-policy" {
+  name             = "iam-password-policy"
+  description      = "Ensure the account password policy for IAM users meets the specified requirements"
+  input_parameters = "${data.template_file.aws_config_iam_password_policy.rendered}"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_PASSWORD_POLICY"
   }
 
   maximum_execution_frequency = "${var.config_max_execution_frequency}"
@@ -107,39 +170,19 @@ resource "aws_config_config_rule" "acm-certificate-expiration-check" {
   depends_on = ["aws_config_configuration_recorder.main"]
 }
 
-resource "aws_config_config_rule" "ec2-volume-inuse-check" {
-  name        = "ec2-volume-inuse-check"
-  description = "Checks whether EBS volumes are attached to EC2 instances"
+resource "aws_config_config_rule" "root-account-mfa-enabled" {
+  name        = "root-account-mfa-enabled"
+  description = "Ensure root AWS account has MFA enabled"
 
   source {
     owner             = "AWS"
-    source_identifier = "EC2_VOLUME_INUSE_CHECK"
+    source_identifier = "ROOT_ACCOUNT_MFA_ENABLED"
   }
 
-  depends_on = ["aws_config_configuration_recorder.main"]
-}
+  maximum_execution_frequency = "${var.config_max_execution_frequency}"
 
-resource "aws_config_config_rule" "iam-user-no-policies-check" {
-  name        = "iam-user-no-policies-check"
-  description = "Ensure that none of your IAM users have policies attached. IAM users must inherit permissions from IAM groups or roles."
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_USER_NO_POLICIES_CHECK"
-  }
-
-  depends_on = ["aws_config_configuration_recorder.main"]
-}
-
-resource "aws_config_config_rule" "require-tags" {
-  name             = "require-tags"
-  description      = "Checks whether your resources have the tags that you specify. For example, you can check whether your EC2 instances have the 'CostCenter' tag. Separate multiple values with commas."
-  input_parameters = "{\"tag1Key\": \"Project\",\"tag2Key\": \"Server-Name\",\"tag3Key\": \"Owner\"}"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "REQUIRED_TAGS"
-  }
-
-  depends_on = ["aws_config_configuration_recorder.main"]
+  depends_on = [
+    "aws_config_configuration_recorder.main",
+    "aws_config_delivery_channel.main",
+  ]
 }
