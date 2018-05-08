@@ -52,7 +52,7 @@ resource "aws_config_config_rule" "restricted-ssh" {
 resource "aws_config_config_rule" "restricted-common-ports" {
   name             = "restricted-common-ports"
   description      = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
-  input_parameters = "${data.template_file.aws_config_aws_config_restricted_common_ports}"
+  input_parameters = "${data.template_file.aws_config_restricted_common_ports}"
 
   source {
     owner             = "AWS"
