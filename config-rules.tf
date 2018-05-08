@@ -1,3 +1,4 @@
+// Adopt config-policy template
 data "template_file" "aws_config_iam_password_policy" {
   template = "${file("${path.module}/config-policies/iam-password-policy.tpl")}"
 
@@ -21,6 +22,14 @@ data "template_file" "aws_config_acm_certificate_expiration" {
   }
 }
 
+data "template_file" "aws_config_restricted_common_ports" {
+  template = "${file("${path.module}/config-policies/restricted-common-ports.tpl")}"
+
+  vars = {
+    restricted-common-ports = "${var.restricted-common-ports}"
+  }
+}
+
 /**
  * AWS Config Rules (classfied each rule by category)
  * Reference link 1: https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html
@@ -41,8 +50,9 @@ resource "aws_config_config_rule" "restricted-ssh" {
 }
 
 resource "aws_config_config_rule" "restricted-common-ports" {
-  name        = "restricted-common-ports"
-  description = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
+  name             = "restricted-common-ports"
+  description      = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
+  input_parameters = "${data.template_file.aws_config_aws_config_restricted_common_ports}"
 
   source {
     owner             = "AWS"
@@ -89,7 +99,7 @@ resource "aws_config_config_rule" "eip-attached" {
   }
 
   depends_on = [
-    "aws_config_configuration_recorder.main"
+    "aws_config_configuration_recorder.main",
   ]
 }
 

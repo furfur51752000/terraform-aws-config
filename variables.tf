@@ -38,11 +38,13 @@ variable "config_delivery_frequency" {
   type        = "string"
 }
 
+/// acm-certificate-expiration
 variable "acm_days_to_expiration" {
   description = "Specify the number of days before the rule flags the ACM Certificate as noncompliant."
   default     = 14
 }
 
+/// iam-password-policy
 variable "password_require_uppercase" {
   description = "Require at least one uppercase character in password."
   default     = true
@@ -78,7 +80,8 @@ variable "password_max_age" {
   default     = 90
 }
 
-variable "tags" {
-  description = "tags"
-  default     = {}
+/// restricted-common-ports
+variable "restricted-common-ports" {
+  description = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
+  type     = "list"
 }
