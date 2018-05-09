@@ -39,8 +39,8 @@ data "template_file" "aws_config_require_tags" {
 
   vars = {
     "tag1Key" = "${var.tag1Key}"
-    "tag1Key" = "${var.tag2Key}"
-    "tag1Key" = "${var.tag3Key}"
+    "tag2Key" = "${var.tag2Key}"
+    "tag3Key" = "${var.tag3Key}"
   }
 }
 
