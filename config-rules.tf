@@ -26,7 +26,21 @@ data "template_file" "aws_config_restricted_common_ports" {
   template = "${file("${path.module}/config-policies/restricted-common-ports.tpl")}"
 
   vars = {
-    restricted-common-ports = "${var.restricted-common-ports}"
+    "blockedPort1" = "${var.blockedPort1}"
+    "blockedPort2" = "${var.blockedPort2}"
+    "blockedPort3" = "${var.blockedPort3}"
+    "blockedPort4" = "${var.blockedPort4}"
+    "blockedPort5" = "${var.blockedPort5}"
+  }
+}
+
+data "template_file" "aws_config_require_tags" {
+  template = "${file("${path.module}/config-policies/require-tags.tpl")}"
+
+  vars = {
+    "tag1Key" = "${var.tag1Key}"
+    "tag1Key" = "${var.tag2Key}"
+    "tag1Key" = "${var.tag3Key}"
   }
 }
 
@@ -52,14 +66,17 @@ resource "aws_config_config_rule" "restricted-ssh" {
 resource "aws_config_config_rule" "restricted-common-ports" {
   name             = "restricted-common-ports"
   description      = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
-  input_parameters = "${data.template_file.aws_config_restricted_common_ports}"
+  input_parameters = "${data.template_file.aws_config_restricted_common_ports.rendered}"
 
   source {
     owner             = "AWS"
     source_identifier = "RESTRICTED_INCOMING_TRAFFIC"
   }
 
-  depends_on = ["aws_config_configuration_recorder.main"]
+  depends_on = [
+    "aws_config_configuration_recorder.main",
+    "aws_config_delivery_channel.main",
+  ]
 }
 
 resource "aws_config_config_rule" "ec2-volume-inuse-check" {
@@ -124,7 +141,7 @@ resource "aws_config_config_rule" "cloudtrail-enabled" {
 resource "aws_config_config_rule" "require-tags" {
   name             = "require-tags"
   description      = "Checks whether your resources have the tags that you specify. For example, you can check whether your EC2 instances have the 'CostCenter' tag. Separate multiple values with commas."
-  input_parameters = "{\"tag1Key\": \"Project\",\"tag2Key\": \"Server-Name\",\"tag3Key\": \"Owner\"}"
+  input_parameters = "${data.template_file.aws_config_require_tags.rendered}"
 
   source {
     owner             = "AWS"

@@ -1,4 +1,4 @@
-// variable for main.profile.tf
+// variable for main.auto.tf
 variable "profile" {
   description = "aws login profile"
   default     = ""
@@ -81,7 +81,43 @@ variable "password_max_age" {
 }
 
 /// restricted-common-ports
-variable "restricted-common-ports" {
-  description = "Checks whether security groups in use do not allow restricted incoming TCP traffic to the specified ports."
-  type     = "list"
+variable "blockedPort1" {
+  description = "Blocked TCP port number."
+  default     = ""
+}
+
+variable "blockedPort2" {
+  description = "Blocked TCP port number."
+  default     = ""
+}
+
+variable "blockedPort3" {
+  description = "Blocked TCP port number."
+  default     = ""
+}
+
+variable "blockedPort4" {
+  description = "Blocked TCP port number."
+  default     = ""
+}
+
+variable "blockedPort5" {
+  description = "Blocked TCP port number."
+  default     = ""
+}
+
+/// require-tags
+variable "tag1Key" {
+  description = "resource tag."
+  default     = ""
+}
+
+variable "tag2Key" {
+  description = "resource tag."
+  default     = ""
+}
+
+variable "tag3Key" {
+  description = "resource tag."
+  default     = ""
 }
