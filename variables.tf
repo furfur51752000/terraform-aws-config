@@ -1,4 +1,9 @@
 // variable for main.auto.tf
+variable "sha256" {
+  description = "for SHA 256"
+  default     = "Abcde104"
+}
+
 variable "profile" {
   description = "aws login profile"
   default     = ""
