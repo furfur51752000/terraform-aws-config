@@ -1,7 +1,8 @@
 // variable for main.auto.tf
-variable "sha256" {
-  description = "for SHA 256"
-  default     = "Abcde104"
+variable "md5" {
+  description = "for md5"
+  type        = "string"
+  default     = "104corp"
 }
 
 variable "profile" {
@@ -22,6 +23,7 @@ variable "region" {
 variable "config_logs_bucket" {
   description = "The S3 bucket for AWS Config logs."
   type        = "string"
+  default     = ""
 }
 
 variable "config_logs_prefix" {
