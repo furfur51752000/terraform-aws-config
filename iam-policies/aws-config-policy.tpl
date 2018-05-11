@@ -7,7 +7,7 @@
                 "s3:PutObject*"
             ],
             "Resource": [
-                "arn:aws:s3:::${config_logs_bucket}/${config_logs_prefix}/AWSLogs/${account_id}/*"
+                "arn:aws:s3:::${var.config_logs_bucket}-${base64sha256(${Abcde104})}/${config_logs_prefix}/AWSLogs/${account_id}/*"
             ],
             "Condition": {
                 "StringLike": {

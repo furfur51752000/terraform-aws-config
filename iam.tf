@@ -7,7 +7,7 @@ data "template_file" "aws_config_policy" {
   template = "${file("${path.module}/iam-policies/aws-config-policy.tpl")}"
 
   vars = {
-    config_logs_bucket = "${var.config_logs_bucket}-${base64sha256(${var.sha256})}"
+    config_logs_bucket = "${var.config_logs_bucket}-${base64sha256(${Abcde104})}"
     config_logs_prefix = "${var.config_logs_prefix}"
     account_id         = "${data.aws_caller_identity.current.account_id}"
   }
