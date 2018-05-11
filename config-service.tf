@@ -9,7 +9,7 @@ resource "aws_config_configuration_recorder_status" "main" {
 
 resource "aws_config_delivery_channel" "main" {
   name           = "aws-config"
-  s3_bucket_name = "'${var.config_logs_bucket}'-'${base64sha256(var.sha256)}'"
+  s3_bucket_name = "${var.config_logs_bucket}-${base64sha256(var.sha256)}"
   s3_key_prefix  = "${var.config_logs_prefix}"
 
   snapshot_delivery_properties = {
